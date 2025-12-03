@@ -14,6 +14,7 @@ This sop analyzes a codebase and generates comprehensive documentation including
 - **check_completeness** (optional, default: true): Whether to identify areas lacking sufficient detail
 - **update_mode** (optional, default: false): Whether to update existing documentation based on recent changes
 - **codebase_path** (optional, default: current directory): Path to the codebase to analyze
+- **create_pr** (optional, default: false): Whether to create a pull request with all generated documentation updates at the end of execution
 
 **Constraints for parameter acquisition:**
 - You MUST ask for all parameters upfront in a single prompt rather than one at a time
@@ -123,7 +124,30 @@ Create a consolidated documentation file if requested.
 - You MUST include information from all relevant documentation files
 - If consolidate is false, you MUST skip this step and inform the user that no consolidated file will be created
 
-### 6. Summary and Next Steps
+### 6. Create Pull Request with Updates
+
+Create a pull request with all generated documentation updates if requested.
+
+**Constraints:**
+- If create_pr is true, you MUST create a pull request with all documentation updates
+- You MUST create a new branch for the PR (e.g., "docs/codebase-summary-updates-{timestamp}")
+- You MUST include all generated documentation files in the PR:
+  - All files from {output_dir}/ directory
+  - Consolidated file if consolidate is true
+- You MUST create a comprehensive PR description that includes:
+  - Summary of documentation generated
+  - List of all files added or modified
+  - Key findings from the codebase analysis
+  - Instructions for reviewers on how to use the documentation
+  - Links to relevant documentation files
+- You MUST set appropriate PR metadata:
+  - Title: "docs: Add/Update codebase documentation from SOP analysis"
+  - Labels: ["documentation", "automated"]
+  - Reviewers: (if available from context)
+- You MUST provide the PR URL and number to the user upon successful creation
+- If create_pr is false, you MUST skip this step and inform the user that no PR will be created
+
+### 7. Summary and Next Steps
 
 Provide a summary of the documentation process and suggest next steps.
 
@@ -137,6 +161,10 @@ Provide a summary of the documentation process and suggest next steps.
   - Emphasize that the index.md contains sufficient metadata for assistants to understand which files contain detailed information
   - Provide example queries that demonstrate how to effectively use the documentation
 - If consolidate is true, you MUST provide guidance on using the consolidated file
+- If create_pr is true, you MUST:
+  - Provide the PR URL and instructions for merging
+  - Explain how to track the PR status
+  - Recommend next steps after PR merge
 - If update_mode was used, you MUST:
   - Summarize what changes were detected and updated in the documentation
   - Highlight any significant architectural changes
@@ -151,9 +179,10 @@ consolidate: true
 consolidate_target: "AGENTS.md"
 consolidate_prompt: "Create a comprehensive AGENTS.md file optimized for AI coding assistants. You MUST focus on information that is not already present in other documentation sources like README.md or CONTRIBUTING.md. Useful information for this file includes: File purpose, directory structure, Coding style patterns, file organization patterns, instructions on how to write and run tests, documentation guidelines, and package specific guidance."
 codebase_path: "/path/to/project"
+create_pr: true
 ```
 
-### Example Output (Generate Mode)
+### Example Output (Generate Mode with PR Creation)
 ```
 Setting up directory structure...
 ✅ Created directory .summary/
@@ -178,10 +207,18 @@ Consolidating documentation...
 ✅ Created AGENTS.md optimized for AI coding assistants
 ✅ Included comprehensive project context and development guidance
 
+Creating pull request...
+✅ Created branch: docs/codebase-summary-updates-20240115
+✅ Committed all documentation files
+✅ Created PR #42: "docs: Add/Update codebase documentation from SOP analysis"
+✅ PR URL: https://github.com/myorg/myrepo/pull/42
+
 Summary and Next Steps:
 ✅ Documentation generation complete!
+✅ PR created successfully with all updates
 ✅ To use with AI assistants, add .summary/index.md to context
 ✅ AGENTS.md provides comprehensive guidance for AI coding assistance
+✅ Review and merge PR to finalize documentation updates
 ```
 
 ### Example Input (README.md)
@@ -216,9 +253,16 @@ Consolidating updated documentation...
 ✅ Updated AGENTS.md with recent changes
 ✅ Added "Recent Changes" section highlighting updates
 
+Creating pull request...
+✅ Created branch: docs/codebase-summary-updates-20240115
+✅ Committed all updated documentation files
+✅ Created PR #43: "docs: Add/Update codebase documentation from SOP analysis"
+✅ PR URL: https://github.com/myorg/myrepo/pull/43
+
 Summary:
 ✅ Documentation updated based on 8 recent commits
 ✅ 3 major components updated in documentation
+✅ PR created with all updates
 ✅ Review .summary/recent_changes.md for detailed change summary
 ```
 
@@ -305,3 +349,10 @@ If git commands fail during update mode:
 - Ensure the codebase_path is within a valid git repository
 - Check that git is installed and accessible
 - Verify that the user has appropriate permissions to read git history
+
+### PR Creation Issues
+If PR creation fails:
+- Verify that you have appropriate permissions to create branches and PRs in the repository
+- Check that the branch name doesn't already exist
+- Ensure all documentation files were successfully generated before attempting PR creation
+- Review the PR creation error message for specific guidance
