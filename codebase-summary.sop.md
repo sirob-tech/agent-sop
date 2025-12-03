@@ -2,7 +2,7 @@
 
 ## Overview
 
-This sop analyzes a codebase and generates comprehensive documentation including structured metadata files that describe the system architecture, components, interfaces, and workflows. It can create targeted documentation files like AGENTS.md (README for AI agents), README.md, CONTRIBUTING.md, or generate a complete documentation ecosystem. The documentation is organized to make it easy for AI assistants to understand the system and help with development tasks.
+This sop analyzes a codebase and generates comprehensive documentation including structured metadata files that describe the system architecture, components, interfaces, and workflows. It can create targeted documentation files like AGENTS.md (README for AI agents), README.md, CONTRIBUTING.md, or generate a complete documentation ecosystem. The documentation is organized to make it easy for AI assistants to understand the system and help with development tasks. At the end of execution, the agent MUST create a pull request with all generated documentation updates.
 
 ## Parameters
 
@@ -14,6 +14,8 @@ This sop analyzes a codebase and generates comprehensive documentation including
 - **check_completeness** (optional, default: true): Whether to identify areas lacking sufficient detail
 - **update_mode** (optional, default: false): Whether to update existing documentation based on recent changes
 - **codebase_path** (optional, default: current directory): Path to the codebase to analyze
+- **pr_branch** (optional, default: "docs/codebase-summary-updates-{timestamp}"): Branch name for the PR
+- **pr_reviewers** (optional): List of GitHub usernames to request review from
 
 **Constraints for parameter acquisition:**
 - You MUST ask for all parameters upfront in a single prompt rather than one at a time
@@ -123,12 +125,35 @@ Create a consolidated documentation file if requested.
 - You MUST include information from all relevant documentation files
 - If consolidate is false, you MUST skip this step and inform the user that no consolidated file will be created
 
-### 6. Summary and Next Steps
+### 6. Create Pull Request with Updates
+
+Create a pull request with all generated documentation updates.
+
+**Constraints:**
+- You MUST create a new branch using the pr_branch parameter (or default: "docs/codebase-summary-updates-{timestamp}")
+- You MUST commit all generated documentation files to this branch
+- You MUST create a comprehensive PR description that includes:
+  - Summary of documentation generated
+  - List of all files added or modified
+  - Key findings from the codebase analysis
+  - Instructions for reviewers
+  - Links to relevant documentation files
+- You MUST set appropriate PR metadata:
+  - Title: "docs: Update codebase documentation with latest analysis"
+  - Labels: ["documentation", "automated"]
+  - Reviewers: Use pr_reviewers parameter if provided
+- You MUST provide the PR URL and number to the user
+- You MUST ensure the PR is created against the main branch
+- You MUST handle errors gracefully and provide clear error messages if PR creation fails
+- You MUST NOT merge the PR automatically - it must be reviewed and merged manually
+
+### 7. Summary and Next Steps
 
 Provide a summary of the documentation process and suggest next steps.
 
 **Constraints:**
 - You MUST summarize what has been accomplished
+- You MUST provide the PR URL and status
 - You MUST suggest next steps for using the documentation
 - You MUST provide guidance on maintaining and updating the documentation
 - You MUST include specific instructions for adding the documentation to AI assistant context:
@@ -136,6 +161,10 @@ Provide a summary of the documentation process and suggest next steps.
   - Explain how AI assistants can leverage the index.md file as a knowledge base to find relevant information
   - Emphasize that the index.md contains sufficient metadata for assistants to understand which files contain detailed information
   - Provide example queries that demonstrate how to effectively use the documentation
+- You MUST provide guidance on reviewing and merging the PR:
+  - Explain what to look for in the PR review
+  - Provide instructions for merging the PR
+  - Suggest next steps after PR merge
 - If consolidate is true, you MUST provide guidance on using the consolidated file
 - If update_mode was used, you MUST:
   - Summarize what changes were detected and updated in the documentation
@@ -153,7 +182,7 @@ consolidate_prompt: "Create a comprehensive AGENTS.md file optimized for AI codi
 codebase_path: "/path/to/project"
 ```
 
-### Example Output (Generate Mode)
+### Example Output (Generate Mode with PR Creation)
 ```
 Setting up directory structure...
 ✅ Created directory .summary/
@@ -178,10 +207,20 @@ Consolidating documentation...
 ✅ Created AGENTS.md optimized for AI coding assistants
 ✅ Included comprehensive project context and development guidance
 
+Creating pull request with updates...
+✅ Created branch: docs/codebase-summary-updates-20231215-143022
+✅ Committed all documentation files
+✅ Created PR #42: "docs: Update codebase documentation with latest analysis"
+✅ PR URL: https://github.com/owner/repo/pull/42
+✅ Requested reviewers: [reviewer1, reviewer2]
+
 Summary and Next Steps:
 ✅ Documentation generation complete!
+✅ Pull request created and ready for review
+✅ PR #42: https://github.com/owner/repo/pull/42
 ✅ To use with AI assistants, add .summary/index.md to context
 ✅ AGENTS.md provides comprehensive guidance for AI coding assistance
+✅ Review and merge the PR to apply documentation updates
 ```
 
 ### Example Input (README.md)
@@ -216,9 +255,16 @@ Consolidating updated documentation...
 ✅ Updated AGENTS.md with recent changes
 ✅ Added "Recent Changes" section highlighting updates
 
+Creating pull request with updates...
+✅ Created branch: docs/codebase-summary-updates-20231215-143022
+✅ Committed all updated documentation files
+✅ Created PR #43: "docs: Update codebase documentation with latest analysis"
+✅ PR URL: https://github.com/owner/repo/pull/43
+
 Summary:
 ✅ Documentation updated based on 8 recent commits
 ✅ 3 major components updated in documentation
+✅ Pull request created: https://github.com/owner/repo/pull/43
 ✅ Review .summary/recent_changes.md for detailed change summary
 ```
 
@@ -305,3 +351,11 @@ If git commands fail during update mode:
 - Ensure the codebase_path is within a valid git repository
 - Check that git is installed and accessible
 - Verify that the user has appropriate permissions to read git history
+
+### PR Creation Issues
+If PR creation fails:
+- Verify that you have write permissions to the repository
+- Check that the branch name is valid and doesn't already exist
+- Ensure all documentation files were successfully generated before PR creation
+- Verify that the base branch (main) exists and is accessible
+- Check for any authentication or authorization issues with the VCS provider
