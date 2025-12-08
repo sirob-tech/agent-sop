@@ -8,6 +8,7 @@ A collection of Standard Operating Procedures (SOPs) for AI agents to follow whe
 |-----|-------------|
 | [codebase-summary.sop.md](codebase-summary.sop.md) | Analyzes a codebase and generates comprehensive documentation including AGENTS.md, README.md, or custom documentation files |
 | [aws-architecture-documentation.sop.md](aws-architecture-documentation.sop.md) | Documents AWS infrastructure architecture with verified diagrams, detailed component descriptions, and codebase context |
+| [incident-postmortem.sop.md](incident-postmortem.sop.md) | Conducts incident postmortems using verified data from Slack, metrics, logs, and alerts with Five Whys analysis and action items |
 
 ## Usage
 
